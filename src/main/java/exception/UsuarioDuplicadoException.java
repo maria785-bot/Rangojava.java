@@ -1,0 +1,8 @@
+package main.java.exception;
+
+public class UsuarioDuplicadoException extends RuntimeException {
+    public UsuarioDuplicadoException(String message) {
+
+        super(message);
+    }
+}
