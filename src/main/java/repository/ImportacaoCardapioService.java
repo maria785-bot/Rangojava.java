@@ -1,9 +1,9 @@
-package main.java.repository;
+package repository;
 
-import exception.ArquivoImportacaoException;  // ← CORRIGIDO
-import exception.PrecoInvalidoException;     // ← CORRIGIDO
-import main.java.model.CategoriaItem;
-import main.java.model.ItemCardapio;
+import exception.ArquivoImportacaoException;
+import exception.PrecoInvalidoException;
+import model.CategoriaItem;
+import model.ItemCardapio;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -20,24 +20,22 @@ public class ImportacaoCardapioService {
     private final CategoriaItemRepository categoriaRepo;
 
     public ImportacaoCardapioService() {
-        this.gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.itemRepo = new ItemCardapioRepository();
         this.categoriaRepo = new CategoriaItemRepository();
     }
 
-    public void importarDoArquivo(File arquivoJson) throws ArquivoImportacaoException {  // ← CORRIGIDO
+    public void importarDoArquivo(File arquivoJson) throws ArquivoImportacaoException {
         if (arquivoJson == null) {
-            throw new ArquivoImportacaoException("Arquivo não pode ser nulo.");  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Arquivo não pode ser nulo.");
         }
 
         if (!arquivoJson.exists() || arquivoJson.length() == 0) {
-            throw new ArquivoImportacaoException("Arquivo ausente ou vazio: " + arquivoJson.getPath());  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Arquivo ausente ou vazio: " + arquivoJson.getPath());
         }
 
         if (!arquivoJson.getName().toLowerCase().endsWith(".json")) {
-            throw new ArquivoImportacaoException("Arquivo deve ser JSON: " + arquivoJson.getName());  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Arquivo deve ser JSON: " + arquivoJson.getName());
         }
 
         try (Reader reader = new FileReader(arquivoJson);
@@ -46,17 +44,17 @@ public class ImportacaoCardapioService {
             JsonObject objetoRaiz = gson.fromJson(jsonReader, JsonObject.class);
 
             if (objetoRaiz == null) {
-                throw new ArquivoImportacaoException("Arquivo JSON inválido ou vazio.");  // ← CORRIGIDO
+                throw new ArquivoImportacaoException("Arquivo JSON inválido ou vazio.");
             }
 
             if (!objetoRaiz.has("cardapio") || !objetoRaiz.get("cardapio").isJsonArray()) {
-                throw new ArquivoImportacaoException("Estrutura inválida. Esperado campo 'cardapio' como array.");  // ← CORRIGIDO
+                throw new ArquivoImportacaoException("Estrutura inválida. Esperado campo 'cardapio' como array.");
             }
 
             JsonArray listaItensJson = objetoRaiz.getAsJsonArray("cardapio");
 
             if (listaItensJson.size() == 0) {
-                throw new ArquivoImportacaoException("Nenhum item encontrado no cardápio.");  // ← CORRIGIDO
+                throw new ArquivoImportacaoException("Nenhum item encontrado no cardápio.");
             }
 
             List<ItemCardapio> novosItens = new ArrayList<>();
@@ -94,7 +92,6 @@ public class ImportacaoCardapioService {
                         continue;
                     }
 
-                    // Buscar ou criar categoria
                     CategoriaItem categoria = buscarOuCriarCategoria(categoriaNome);
 
                     if (categoria == null) {
@@ -117,8 +114,8 @@ public class ImportacaoCardapioService {
 
                         novosItens.add(item);
 
-                    } catch (PrecoInvalidoException e) {  // ← CORRIGIDO
-                        erros.add("Item '" + nome + "' tem preço inválido: " + e.getMessage());  // ← CORRIGIDO
+                    } catch (PrecoInvalidoException e) {
+                        erros.add("Item '" + nome + "' tem preço inválido: " + e.getMessage());
                     }
 
                 } catch (Exception e) {
@@ -128,7 +125,7 @@ public class ImportacaoCardapioService {
 
             if (!erros.isEmpty()) {
                 String mensagemErro = String.join("\n", erros);
-                throw new ArquivoImportacaoException("Erros encontrados durante a importação:\n" + mensagemErro);  // ← CORRIGIDO
+                throw new ArquivoImportacaoException("Erros encontrados durante a importação:\n" + mensagemErro);
             }
 
             for (ItemCardapio item : novosItens) {
@@ -138,28 +135,25 @@ public class ImportacaoCardapioService {
             System.out.println("✅ Importação concluída! " + novosItens.size() + " itens importados.");
 
         } catch (FileNotFoundException e) {
-            throw new ArquivoImportacaoException("Arquivo não encontrado: " + e.getMessage());  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Arquivo não encontrado: " + e.getMessage());
         } catch (IOException e) {
-            throw new ArquivoImportacaoException("Erro de leitura do arquivo: " + e.getMessage());  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Erro de leitura do arquivo: " + e.getMessage());
         } catch (Exception e) {
-            throw new ArquivoImportacaoException("Erro inesperado: " + e.getMessage());  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Erro inesperado: " + e.getMessage());
         }
     }
 
-    // Método para buscar ou criar categoria
     private CategoriaItem buscarOuCriarCategoria(String nomeCategoria) {
         if (nomeCategoria == null || nomeCategoria.trim().isEmpty()) {
             return null;
         }
 
-        // Buscar categoria existente pelo nome
         CategoriaItem categoriaExistente = categoriaRepo.buscarPorNome(nomeCategoria.trim());
 
         if (categoriaExistente != null) {
             return categoriaExistente;
         }
 
-        // Criar nova categoria
         try {
             int novoId = categoriaRepo.gerarNovoId();
             CategoriaItem novaCategoria = new CategoriaItem(
@@ -176,10 +170,9 @@ public class ImportacaoCardapioService {
         }
     }
 
-    // Método adicional para importar de String (útil para testes)
-    public void importarDoJson(String jsonContent) throws ArquivoImportacaoException {  // ← CORRIGIDO
+    public void importarDoJson(String jsonContent) throws ArquivoImportacaoException {
         if (jsonContent == null || jsonContent.trim().isEmpty()) {
-            throw new ArquivoImportacaoException("Conteúdo JSON não pode ser vazio.");  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Conteúdo JSON não pode ser vazio.");
         }
 
         try {
@@ -194,11 +187,10 @@ public class ImportacaoCardapioService {
             importarDoArquivo(tempFile);
 
         } catch (IOException e) {
-            throw new ArquivoImportacaoException("Erro ao criar arquivo temporário: " + e.getMessage());  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Erro ao criar arquivo temporário: " + e.getMessage());
         }
     }
 
-    // Método para validar arquivo antes de importar
     public boolean validarArquivo(File arquivoJson) {
         if (arquivoJson == null || !arquivoJson.exists() || arquivoJson.length() == 0) {
             return false;
@@ -242,7 +234,6 @@ public class ImportacaoCardapioService {
         }
     }
 
-    // Método para contar itens no arquivo
     public int contarItensNoArquivo(File arquivoJson) {
         if (!validarArquivo(arquivoJson)) {
             return 0;
@@ -257,7 +248,6 @@ public class ImportacaoCardapioService {
         }
     }
 
-    // Método para obter nomes dos itens no arquivo
     public List<String> listarNomesItensNoArquivo(File arquivoJson) {
         List<String> nomes = new ArrayList<>();
 
@@ -281,10 +271,9 @@ public class ImportacaoCardapioService {
         return nomes;
     }
 
-    // Método para importar com progresso (para arquivos grandes)
-    public void importarComProgresso(File arquivoJson) throws ArquivoImportacaoException {  // ← CORRIGIDO
+    public void importarComProgresso(File arquivoJson) throws ArquivoImportacaoException {
         if (!validarArquivo(arquivoJson)) {
-            throw new ArquivoImportacaoException("Arquivo inválido para importação.");  // ← CORRIGIDO
+            throw new ArquivoImportacaoException("Arquivo inválido para importação.");
         }
 
         int totalItens = contarItensNoArquivo(arquivoJson);
