@@ -1,4 +1,4 @@
-package main.java.exception;
+package exception;
 
 public class CarrinhoVazioException extends RuntimeException {
     public CarrinhoVazioException(String message) {

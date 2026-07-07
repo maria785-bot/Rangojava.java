@@ -1,12 +1,11 @@
-package main.java.exception;
+package exception;
 
-public class PrecoInvalidoException extends RuntimeException {
-    public PrecoInvalidoException(String message) {
-
-        super("Preço deve ser maior que zero!");
+public class PrecoInvalidoException extends Exception {
+    public PrecoInvalidoException() {
+        super("Preço inválido. O preço deve ser maior que zero.");
     }
 
-    public PrecoInvalidoException() {
-
+    public PrecoInvalidoException(String mensagem) {
+        super(mensagem);
     }
 }

@@ -1,8 +1,11 @@
-package main.java.exception;
+package exception;
 
-public class DocumentoInvalidoException extends RuntimeException {
-    public DocumentoInvalidoException(String tipo) {
+public class DocumentoInvalidoException extends Exception {
+    public DocumentoInvalidoException() {
+        super("Documento inválido.");
+    }
 
-        super(tipo + " inválido! Verifique os dígitos.");
+    public DocumentoInvalidoException(String mensagem) {
+        super("Documento inválido: " + mensagem);
     }
 }

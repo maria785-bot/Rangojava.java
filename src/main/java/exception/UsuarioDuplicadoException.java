@@ -1,4 +1,4 @@
-package main.java.exception;
+package exception;
 
 public class UsuarioDuplicadoException extends RuntimeException {
     public UsuarioDuplicadoException(String message) {

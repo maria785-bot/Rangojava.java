@@ -1,5 +1,48 @@
-package main.java.model;
+package model;
 
-public enum categoriaitem {
-    ENTRADA, PRATO_PRINCIPAL, SOBREMESA, BEBIDAS
+public class CategoriaItem {
+    private int id;
+    private String nome;
+    private String descricao;
+
+    public CategoriaItem() {}
+
+    public CategoriaItem(int id, String nome, String descricao) {
+        this.id = id;
+        this.nome = nome;
+        this.descricao = descricao;
+    }
+
+    // Getters e Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {  // ← MÉTODO getName() existe
+        return nome;
+    }
+
+    public void setName(String nome) {
+        this.nome = nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    @Override
+    public String toString() {
+        return nome;
+    }
+
+    public void setNome(String s) {
+    }
 }

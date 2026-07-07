@@ -1,34 +1,39 @@
 package model;
 
-import exception.CancelamentoNaoPermitidoException;
-import exception.StatusInvalidoException;
-
-public class Gerente extends Usuario {
-    private String cnpjRestaurante;
+public class Gerente {
+    private int id;
+    private String nome;
+    private String email;
+    private String senhaHash;
+    private String cargo;
+    private String cpf;
 
     public Gerente() {}
 
-    public Gerente(String nome, String email, String senhaHash, String telefone, String endereco, String cnpjRestaurante) {
-        super(nome, email, senhaHash, telefone, endereco);
-        this.cnpjRestaurante = cnpjRestaurante;
+    public Gerente(int id, String nome, String email, String senhaHash, String cargo) {
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
+        this.senhaHash = senhaHash;
+        this.cargo = cargo;
     }
 
-    @Override
-    public String getIdentificador() {
-        return this.cnpjRestaurante;
-    }
+    // Getters e Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void alterarStatusPedido(Pedido pedido, StatusPedido novoStatus)
-            throws StatusInvalidoException, CancelamentoNaoPermitidoException {
-        pedido.setStatus(novoStatus);
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-    // Getter e Setter se precisar
-    public String getCnpjRestaurante() {
-        return cnpjRestaurante;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setCnpjRestaurante(String cnpjRestaurante) {
-        this.cnpjRestaurante = cnpjRestaurante;
-    }
+    public String getSenhaHash() { return senhaHash; }
+    public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
+
+    public String getCargo() { return cargo; }
+    public void setCargo(String cargo) { this.cargo = cargo; }
+
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
 }

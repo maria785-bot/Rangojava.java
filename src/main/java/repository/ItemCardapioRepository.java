@@ -1,6 +1,6 @@
-package main.java.Repository;
+package repository;
 
-import model.ItemCardapio;
+import main.java.model.ItemCardapio;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -33,11 +33,14 @@ public class ItemCardapioRepository implements Repository<ItemCardapio, Integer>
 
     private List<ItemCardapio> carregarLista() {
         File arquivo = new File(CAMINHO_ARQUIVO);
-        if (!arquivo.exists() || arquivo.length() == 0) return new ArrayList<>();
+        if (!arquivo.exists() || arquivo.length() == 0) {
+            return new ArrayList<>();
+        }
 
         try (Reader reader = new FileReader(arquivo)) {
             Type tipoLista = new TypeToken<List<ItemCardapio>>() {}.getType();
-            return gson.fromJson(reader, tipoLista);
+            List<ItemCardapio> lista = gson.fromJson(reader, tipoLista);
+            return lista != null ? lista : new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
             return new ArrayList<>();

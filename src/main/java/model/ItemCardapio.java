@@ -1,4 +1,4 @@
-package main.java.model;
+package model;
 
 import exception.PrecoInvalidoException;
 
@@ -11,7 +11,12 @@ public class ItemCardapio {
     private boolean disponivel;
 
     // Construtor vazio
-    public ItemCardapio() {
+    public ItemCardapio() {  // ← CORRIGIDO: sem parâmetros
+        this.id = 0;
+        this.nome = "";
+        this.descricao = "";
+        this.preco = 0.0;
+        this.categoria = null;
         this.disponivel = true;
     }
 
@@ -22,6 +27,16 @@ public class ItemCardapio {
         this.nome = nome;
         this.descricao = descricao;
         setPreco(preco);
+        this.categoria = categoria;
+        this.disponivel = true;
+    }
+
+    // Construtor simplificado (sem exceção)
+    public ItemCardapio(int id, String nome, double preco, CategoriaItem categoria) {
+        this.id = id;
+        this.nome = nome;
+        this.descricao = "";
+        this.preco = preco;
         this.categoria = categoria;
         this.disponivel = true;
     }

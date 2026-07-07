@@ -1,37 +1,89 @@
-package main.java.model;
+package model;
 
 public class Restaurante {
-    private String nomeFantasia;
-    private String cnpj;
+    private String nome;
     private String endereco;
     private String telefone;
-    private String categoriaCulinaria;
     private String email;
-    private String senhaGerenteHash;
-    private String caminhoLogo;
+    private String horarioFuncionamento;
+    private String descricao;
 
-    // Construtor, Getters e Setters
-    public Restaurante() {}
-
-    public Restaurante(String nomeFantasia, String cnpj, String endereco, String telefone, String categoriaCulinaria, String email, String senhaGerenteHash) {
-        this.nomeFantasia = nomeFantasia;
-        this.cnpj = cnpj;
-        this.endereco = endereco;
-        this.telefone = telefone;
-        this.categoriaCulinaria = categoriaCulinaria;
-        this.email = email;
-        this.senhaGerenteHash = senhaGerenteHash;
+    public Restaurante() {
+        this.nome = "";
+        this.endereco = "";
+        this.telefone = "";
+        this.email = "";
+        this.horarioFuncionamento = "";
+        this.descricao = "";
     }
 
-    // ... Getters e Setters ...
-    public String getNomeFantasia() { return nomeFantasia; }
-    public void setNomeFantasia(String nomeFantasia) { this.nomeFantasia = nomeFantasia; }
-    public String getCnpj() { return cnpj; }
-    public void setCnpj(String cnpj) { this.cnpj = cnpj; }
-    public String getSenhaGerenteHash() { return senhaGerenteHash; }
-    public void setSenhaGerenteHash(String senhaGerenteHash) { this.senhaGerenteHash = senhaGerenteHash; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getCaminhoLogo() { return caminhoLogo; }
-    public void setCaminhoLogo(String caminhoLogo) { this.caminhoLogo = caminhoLogo; }
+    public Restaurante(String nome, String endereco, String telefone, String email) {
+        this.nome = nome;
+        this.endereco = endereco;
+        this.telefone = telefone;
+        this.email = email;
+        this.horarioFuncionamento = "";
+        this.descricao = "";
+    }
+
+    // Getters e Setters
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getHorarioFuncionamento() {
+        return horarioFuncionamento;
+    }
+
+    public void setHorarioFuncionamento(String horarioFuncionamento) {
+        this.horarioFuncionamento = horarioFuncionamento;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    @Override
+    public String toString() {
+        return "Restaurante{" +
+                "nome='" + nome + '\'' +
+                ", endereco='" + endereco + '\'' +
+                ", telefone='" + telefone + '\'' +
+                ", email='" + email + '\'' +
+                ", horarioFuncionamento='" + horarioFuncionamento + '\'' +
+                ", descricao='" + descricao + '\'' +
+                '}';
+    }
 }

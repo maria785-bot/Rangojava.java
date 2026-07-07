@@ -1,10 +1,9 @@
-package main.java.model;
+package model;
 
 public enum StatusPedido {
-    AGUARDANDO_CONFIRMACAO,
-    CONFIRMADO,
-    EM_PREPARO,
-    SAIU_PARA_ENTREGA,
+    NOVO,
+    PREPARANDO,
+    PRONTO,
     ENTREGUE,
     CANCELADO
 }

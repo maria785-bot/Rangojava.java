@@ -1,12 +1,11 @@
-package main.java.exception;
+package exception;
 
-public class StatusInvalidoException extends RuntimeException {
-    public StatusInvalidoException(String message) {
-
-        super("Transição de status não permitida!");
+public class StatusInvalidoException extends Exception {
+    public StatusInvalidoException() {
+        super("Status inválido.");
     }
 
-    public StatusInvalidoException() {
-
+    public StatusInvalidoException(String mensagem) {
+        super(mensagem);
     }
 }
