@@ -1,6 +1,6 @@
-package main.java.repository;
+package repository;
 
-import main.java.model.Cliente;
+import model.Cliente;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -14,9 +14,7 @@ public class ClienteRepository implements Repository<Cliente, String> {
     private final Gson gson;
 
     public ClienteRepository() {
-        this.gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
         criarArquivoSeNaoExistir();
     }
 
@@ -28,7 +26,6 @@ public class ClienteRepository implements Repository<Cliente, String> {
                 arquivo.createNewFile();
                 salvarLista(new ArrayList<>());
             } catch (IOException e) {
-                System.err.println("Erro ao criar arquivo: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -45,7 +42,6 @@ public class ClienteRepository implements Repository<Cliente, String> {
             List<Cliente> lista = gson.fromJson(reader, tipoLista);
             return lista != null ? lista : new ArrayList<>();
         } catch (IOException e) {
-            System.err.println("Erro ao carregar lista: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }
@@ -55,7 +51,6 @@ public class ClienteRepository implements Repository<Cliente, String> {
         try (Writer writer = new FileWriter(CAMINHO_ARQUIVO)) {
             gson.toJson(lista, writer);
         } catch (IOException e) {
-            System.err.println("Erro ao salvar lista: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -65,12 +60,10 @@ public class ClienteRepository implements Repository<Cliente, String> {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo.");
         }
-
-        String cpf = cliente.getCpf();  // ← VERIFIQUE se este método existe
+        String cpf = cliente.getCpf();
         if (cpf != null && buscarPorId(cpf) != null) {
             throw new IllegalStateException("Cliente com CPF " + cpf + " já existe.");
         }
-
         List<Cliente> lista = carregarLista();
         lista.add(cliente);
         salvarLista(lista);
@@ -81,15 +74,8 @@ public class ClienteRepository implements Repository<Cliente, String> {
         if (cpf == null || cpf.trim().isEmpty()) {
             return null;
         }
-
         return carregarLista().stream()
-                .filter(c -> {
-                    try {
-                        return c.getCpf() != null && c.getCpf().equals(cpf);
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
+                .filter(c -> c.getCpf() != null && c.getCpf().equals(cpf))
                 .findFirst()
                 .orElse(null);
     }
@@ -98,15 +84,8 @@ public class ClienteRepository implements Repository<Cliente, String> {
         if (email == null || email.trim().isEmpty()) {
             return null;
         }
-
         return carregarLista().stream()
-                .filter(c -> {
-                    try {
-                        return c.getEmail() != null && c.getEmail().equalsIgnoreCase(email);
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
+                .filter(c -> c.getEmail() != null && c.getEmail().equalsIgnoreCase(email))
                 .findFirst()
                 .orElse(null);
     }
@@ -115,33 +94,10 @@ public class ClienteRepository implements Repository<Cliente, String> {
         if (nome == null || nome.trim().isEmpty()) {
             return null;
         }
-
         return carregarLista().stream()
-                .filter(c -> {
-                    try {
-                        return c.getNome() != null && c.getNome().toLowerCase().contains(nome.toLowerCase());
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
+                .filter(c -> c.getNome() != null && c.getNome().toLowerCase().contains(nome.toLowerCase()))
                 .findFirst()
                 .orElse(null);
-    }
-
-    public List<Cliente> buscarPorNomeLista(String nome) {
-        if (nome == null || nome.trim().isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return carregarLista().stream()
-                .filter(c -> {
-                    try {
-                        return c.getNome() != null && c.getNome().toLowerCase().contains(nome.toLowerCase());
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
-                .toList();
     }
 
     @Override
@@ -154,28 +110,22 @@ public class ClienteRepository implements Repository<Cliente, String> {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo.");
         }
-
         String cpf = cliente.getCpf();
         if (cpf == null || cpf.trim().isEmpty()) {
             throw new IllegalArgumentException("CPF do cliente não pode ser vazio.");
         }
-
         List<Cliente> lista = carregarLista();
         boolean encontrado = false;
-
         for (int i = 0; i < lista.size(); i++) {
-            Cliente c = lista.get(i);
-            if (c.getCpf() != null && c.getCpf().equals(cpf)) {
+            if (lista.get(i).getCpf() != null && lista.get(i).getCpf().equals(cpf)) {
                 lista.set(i, cliente);
                 encontrado = true;
                 break;
             }
         }
-
         if (!encontrado) {
             throw new IllegalStateException("Cliente com CPF " + cpf + " não encontrado.");
         }
-
         salvarLista(lista);
     }
 
@@ -184,20 +134,11 @@ public class ClienteRepository implements Repository<Cliente, String> {
         if (cpf == null || cpf.trim().isEmpty()) {
             throw new IllegalArgumentException("CPF não pode ser vazio.");
         }
-
         List<Cliente> lista = carregarLista();
-        boolean removido = lista.removeIf(c -> {
-            try {
-                return c.getCpf() != null && c.getCpf().equals(cpf);
-            } catch (Exception e) {
-                return false;
-            }
-        });
-
+        boolean removido = lista.removeIf(c -> c.getCpf() != null && c.getCpf().equals(cpf));
         if (!removido) {
             throw new IllegalStateException("Cliente com CPF " + cpf + " não encontrado.");
         }
-
         salvarLista(lista);
     }
 
