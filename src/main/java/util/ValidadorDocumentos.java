@@ -1,8 +1,9 @@
 package util;
 
-// CORRIGIDO: Importações corretas
+// CORRIGIDO: Importações corretas. lembrar que mudei.
 import exception.DocumentoInvalidoException;
 import exception.SenhaInvalidaException;
+import util.ValidadorDocumentos;
 
 public class ValidadorDocumentos {
 
