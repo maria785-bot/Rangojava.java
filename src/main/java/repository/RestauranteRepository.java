@@ -1,9 +1,9 @@
 package repository;
 
-import main.java.model.Restaurante;
-import main.java.model.Gerente;
-import main.java.util.HashSenha;
-import main.java.util.LocalDateTimeAdapter;
+import model.Restaurante;
+import model.Gerente;
+import util.HashSenha;
+import util.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.*;
@@ -17,7 +17,6 @@ public class RestauranteRepository {
     private List<Gerente> gerentes;
 
     public RestauranteRepository() {
-        // Registrar o adapter para LocalDateTime
         this.gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
@@ -33,7 +32,6 @@ public class RestauranteRepository {
             try {
                 arquivo.getParentFile().mkdirs();
                 arquivo.createNewFile();
-                // Criar um restaurante padrão
                 Restaurante restaurantePadrao = new Restaurante();
                 restaurantePadrao.setNome("RangoJava Restaurante");
                 restaurantePadrao.setEndereco("Rua Principal, 123 - Centro");
@@ -50,8 +48,6 @@ public class RestauranteRepository {
     }
 
     private void carregarGerentes() {
-        // Carregar gerentes de um arquivo ou criar um padrão
-        // Por enquanto, vamos criar um gerente padrão para teste
         Gerente gerentePadrao = new Gerente();
         gerentePadrao.setId(1);
         gerentePadrao.setNome("Administrador");
@@ -66,7 +62,6 @@ public class RestauranteRepository {
         if (restaurante == null) {
             throw new IllegalArgumentException("Restaurante não pode ser nulo.");
         }
-
         try (Writer writer = new FileWriter(CAMINHO_ARQUIVO)) {
             gson.toJson(restaurante, writer);
         } catch (IOException e) {
@@ -80,7 +75,6 @@ public class RestauranteRepository {
         if (!arquivo.exists() || arquivo.length() == 0) {
             return null;
         }
-
         try (Reader reader = new FileReader(arquivo)) {
             return gson.fromJson(reader, Restaurante.class);
         } catch (IOException e) {
@@ -99,8 +93,6 @@ public class RestauranteRepository {
         if (email == null || email.isEmpty()) {
             return null;
         }
-
-        // Buscar na lista de gerentes
         for (Gerente gerente : gerentes) {
             if (gerente.getEmail() != null && gerente.getEmail().equalsIgnoreCase(email)) {
                 return gerente;
@@ -111,14 +103,11 @@ public class RestauranteRepository {
 
     public void adicionarGerente(Gerente gerente) {
         if (gerente != null) {
-            // Verificar se já existe gerente com mesmo email
             boolean existe = gerentes.stream()
                     .anyMatch(g -> g.getEmail() != null && g.getEmail().equalsIgnoreCase(gerente.getEmail()));
-
             if (existe) {
                 throw new IllegalStateException("Já existe um gerente com este e-mail.");
             }
-
             gerentes.add(gerente);
         }
     }
@@ -131,9 +120,7 @@ public class RestauranteRepository {
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("E-mail não pode ser vazio.");
         }
-
         boolean removido = gerentes.removeIf(g -> g.getEmail() != null && g.getEmail().equalsIgnoreCase(email));
-
         if (!removido) {
             throw new IllegalStateException("Gerente com e-mail " + email + " não encontrado.");
         }
@@ -150,7 +137,6 @@ public class RestauranteRepository {
         if (gerente == null) {
             throw new IllegalArgumentException("Gerente não pode ser nulo.");
         }
-
         for (int i = 0; i < gerentes.size(); i++) {
             if (gerentes.get(i).getId() == gerente.getId()) {
                 gerentes.set(i, gerente);
@@ -179,7 +165,6 @@ public class RestauranteRepository {
         if (!arquivo.exists() || arquivo.length() == 0) {
             return false;
         }
-
         try (Reader reader = new FileReader(arquivo)) {
             Restaurante restaurante = gson.fromJson(reader, Restaurante.class);
             return restaurante != null;
@@ -197,7 +182,6 @@ public class RestauranteRepository {
         return arquivo.exists() ? arquivo.length() : 0;
     }
 
-    // Método para criar restaurante com dados personalizados
     public void criarRestaurantePersonalizado(String nome, String endereco, String telefone, String email) {
         Restaurante restaurante = new Restaurante();
         restaurante.setNome(nome);
@@ -209,17 +193,14 @@ public class RestauranteRepository {
         salvar(restaurante);
     }
 
-    // Método para contar gerentes
     public int contarGerentes() {
         return gerentes.size();
     }
 
-    // Método para limpar gerentes
     public void limparGerentes() {
         gerentes.clear();
     }
 
-    // Método para adicionar gerente padrão
     public void criarGerentePadrao() {
         if (buscarGerentePorEmail("admin@rangojava.com") == null) {
             Gerente admin = new Gerente();
