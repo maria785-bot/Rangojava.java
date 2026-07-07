@@ -1,16 +1,16 @@
 package controller;
 
 import java.util.Scanner;
-import main.java.model.Cliente;
-import main.java.model.Gerente;
-import main.java.model.ItemCardapio;
-import main.java.model.Pedido;
-import main.java.model.StatusPedido;
-import main.java.repository.ClienteRepository;
-import main.java.repository.ItemCardapioRepository;
-import main.java.repository.PedidoRepository;
-import main.java.repository.RestauranteRepository;
-import main.java.util.HashSenha;
+import model.Cliente;
+import model.Gerente;
+import model.ItemCardapio;
+import model.Pedido;
+import model.StatusPedido;
+import repository.ClienteRepository;
+import repository.ItemCardapioRepository;
+import repository.PedidoRepository;
+import repository.RestauranteRepository;
+import util.HashSenha;
 import exception.CancelamentoNaoPermitidoException;
 import exception.StatusInvalidoException;
 
@@ -42,7 +42,6 @@ public class LoginController {
         }
 
         try {
-            // Verifica se é cliente
             Cliente cliente = clienteRepo.buscarPorEmail(email);
             if (cliente != null && HashSenha.verificarSenha(senhaDigitada, cliente.getSenhaHash())) {
                 System.out.println("\n✅ Login realizado com sucesso!");
@@ -51,7 +50,6 @@ public class LoginController {
                 return;
             }
 
-            // Verifica se é gerente
             Gerente gerente = restauranteRepo.buscarGerentePorEmail(email);
             if (gerente != null && HashSenha.verificarSenha(senhaDigitada, gerente.getSenhaHash())) {
                 System.out.println("\n✅ Login realizado com sucesso!");
@@ -66,8 +64,6 @@ public class LoginController {
             System.out.println("\n❌ Erro no login: " + e.getMessage());
         }
     }
-
-    // ==================== MENU CLIENTE ====================
 
     private void menuCliente(Cliente cliente) {
         int opcao;
@@ -111,8 +107,6 @@ public class LoginController {
 
         } while (opcao != 5);
     }
-
-    // ==================== FAZER PEDIDO ====================
 
     private void fazerPedido(Cliente cliente) {
         System.out.println("\n🍽️ FAZER PEDIDO");
@@ -230,8 +224,6 @@ public class LoginController {
         System.out.println("=".repeat(50));
     }
 
-    // ==================== HISTÓRICO DE PEDIDOS ====================
-
     private void verHistoricoPedidos(Cliente cliente) {
         System.out.println("\n📜 HISTÓRICO DE PEDIDOS");
         System.out.println("=".repeat(50));
@@ -255,8 +247,6 @@ public class LoginController {
             System.out.println("-".repeat(30));
         }
     }
-
-    // ==================== DADOS DO CLIENTE ====================
 
     private void verDadosCliente(Cliente cliente) {
         System.out.println("\n👤 DADOS DO CLIENTE");
@@ -295,8 +285,6 @@ public class LoginController {
         clienteRepo.atualizar(cliente);
         System.out.println("✅ Dados atualizados com sucesso!");
     }
-
-    // ==================== MENU GERENTE ====================
 
     private void menuGerente(Gerente gerente) {
         int opcao;
@@ -340,8 +328,6 @@ public class LoginController {
 
         } while (opcao != 5);
     }
-
-    // ==================== GERENCIAR CARDÁPIO ====================
 
     private void gerenciarCardapio() {
         int opcao;
@@ -445,7 +431,7 @@ public class LoginController {
         entrada.nextLine();
 
         try {
-            var categoria = new main.java.model.CategoriaItem();
+            var categoria = new model.CategoriaItem();
             categoria.setId(categoriaId);
             categoria.setNome("Categoria " + categoriaId);
 
@@ -567,8 +553,6 @@ public class LoginController {
         System.out.println("Item '" + item.getNome() + "' agora está " + status);
     }
 
-    // ==================== GERENCIAR PEDIDOS ====================
-
     private void gerenciarPedidos() {
         System.out.println("\n📦 GERENCIAR PEDIDOS");
         System.out.println("=".repeat(40));
@@ -594,8 +578,6 @@ public class LoginController {
         }
     }
 
-    // ==================== GERENCIAR CLIENTES ====================
-
     private void gerenciarClientes() {
         System.out.println("\n👥 GERENCIAR CLIENTES");
         System.out.println("=".repeat(40));
@@ -620,8 +602,6 @@ public class LoginController {
         System.out.println("-".repeat(75));
         System.out.println("Total: " + clientes.size() + " clientes");
     }
-
-    // ==================== DADOS DO GERENTE ====================
 
     private void verDadosGerente(Gerente gerente) {
         System.out.println("\n👤 DADOS DO GERENTE");
