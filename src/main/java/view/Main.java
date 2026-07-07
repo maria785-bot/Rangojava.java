@@ -1,20 +1,23 @@
 package view;
 
-import main.java.controller.LoginController;
-import main.java.model.CategoriaItem;
-import main.java.model.ItemCardapio;
-import main.java.model.Cliente;
-import main.java.model.Gerente;
-import main.java.model.Pedido;
-import main.java.model.Restaurante;
-import main.java.model.StatusPedido;
-import main.java.repository.CategoriaItemRepository;
-import main.java.repository.ClienteRepository;
-import main.java.repository.ItemCardapioRepository;
-import main.java.repository.RestauranteRepository;
-import main.java.repository.PedidoRepository;
-import main.java.util.HashSenha;
+import controller.LoginController;
+import exception.DocumentoInvalidoException;
 import exception.PrecoInvalidoException;
+import exception.SenhaInvalidaException;
+import model.CategoriaItem;
+import model.Cliente;
+import model.Gerente;
+import model.ItemCardapio;
+import model.Pedido;
+import model.Restaurante;
+import model.StatusPedido;
+import repository.CategoriaItemRepository;
+import repository.ClienteRepository;
+import repository.ItemCardapioRepository;
+import repository.PedidoRepository;
+import repository.RestauranteRepository;
+import util.HashSenha;
+import util.ValidadorDocumentos;
 
 import java.util.List;
 import java.util.Scanner;
@@ -84,15 +87,13 @@ public class Main {
         scanner.close();
     }
 
-    // ============ MÉTODOS DO MENU PRINCIPAL ============
-
     private static void fazerLogin() {
         LoginController loginController = new LoginController();
         loginController.iniciarLogin();
     }
 
     private static void cadastrarCliente() {
-        System.out.println("\n CADASTRO DE CLIENTE");
+        System.out.println("\n📝 CADASTRO DE CLIENTE");
         System.out.println("=".repeat(40));
 
         System.out.print("Nome: ");
@@ -111,26 +112,52 @@ public class Main {
         String senha = scanner.nextLine().trim();
 
         if (nome.isEmpty() || email.isEmpty() || cpf.isEmpty() || senha.isEmpty()) {
-            System.out.println("\n Todos os campos são obrigatórios!");
+            System.out.println("\n❌ Todos os campos são obrigatórios!");
             return;
         }
 
-        if (senha.length() < 8) {
-            System.out.println("\n A senha deve ter no mínimo 8 caracteres!");
-            return;
-        }
-
+        // ==========================================================
+        // VALIDAÇÃO DE CPF - IMPEDE O CADASTRO DE CPF INVÁLIDO!
+        // ==========================================================
         try {
-            if (clienteRepo.buscarPorEmail(email) != null) {
-                System.out.println("\n E-mail já cadastrado!");
-                return;
-            }
+            util.ValidadorDocumentos.validarCPF(cpf);
+            System.out.println("✅ CPF válido!");  // ← LINHA DE TESTE
+        } catch (exception.DocumentoInvalidoException e) {
+            System.out.println("\n❌ " + e.getMessage());
+            return;  // ← SAI DO MÉTODO, NÃO CADASTRA!
+        }
 
-            if (clienteRepo.buscarPorId(cpf) != null) {
-                System.out.println("\n CPF já cadastrado!");
-                return;
-            }
+        // ==========================================================
+        // VALIDAÇÃO DE SENHA
+        // ==========================================================
+        try {
+            util.ValidadorDocumentos.validarSenha(senha);
+            System.out.println("✅ Senha válida!");  // ← LINHA DE TESTE
+        } catch (exception.SenhaInvalidaException e) {
+            System.out.println("\n❌ " + e.getMessage());
+            return;
+        }
 
+        // ==========================================================
+        // VERIFICAR SE E-MAIL JÁ EXISTE
+        // ==========================================================
+        if (clienteRepo.buscarPorEmail(email) != null) {
+            System.out.println("\n❌ E-mail já cadastrado!");
+            return;
+        }
+
+        // ==========================================================
+        // VERIFICAR SE CPF JÁ EXISTE
+        // ==========================================================
+        if (clienteRepo.buscarPorId(cpf) != null) {
+            System.out.println("\n❌ CPF já cadastrado!");
+            return;
+        }
+
+        // ==========================================================
+        // SALVAR CLIENTE
+        // ==========================================================
+        try {
             Cliente cliente = new Cliente();
             cliente.setId(gerarProximoIdCliente());
             cliente.setNome(nome);
@@ -140,11 +167,12 @@ public class Main {
             cliente.setSenhaHash(HashSenha.gerarHash(senha));
 
             clienteRepo.salvar(cliente);
-            System.out.println("\n Cliente cadastrado com sucesso!");
-            System.out.println(" ID do cliente: " + cliente.getId());
+            System.out.println("\n✅ Cliente cadastrado com sucesso!");
+            System.out.println("📌 ID do cliente: " + cliente.getId());
 
         } catch (Exception e) {
-            System.out.println("\n Erro ao cadastrar cliente: " + e.getMessage());
+            System.out.println("\n❌ Erro ao cadastrar cliente: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -208,8 +236,6 @@ public class Main {
         System.out.println("   • Categorias: " + categoriaRepo.listarTodos().size());
         System.out.println("   • Pedidos realizados: " + pedidoRepo.listarTodos().size());
     }
-
-    // ============ GERENCIAR CARDÁPIO ============
 
     private static void gerenciarCardapio() {
         int opcao;
@@ -416,7 +442,6 @@ public class Main {
             }
         }
 
-        // aqui é onde mostrar as categorias para editar
         List<CategoriaItem> categorias = categoriaRepo.listarTodos();
         if (!categorias.isEmpty()) {
             System.out.println("\n Categorias disponíveis:");
@@ -512,8 +537,6 @@ public class Main {
         String novoStatusStr = novoStatus ? " DISPONÍVEL" : " INDISPONÍVEL";
         System.out.println("\n Status alterado para: " + novoStatusStr);
     }
-
-    // ============ GERENCIAR CATEGORIAS ============
 
     private static void gerenciarCategorias() {
         int opcao;
@@ -668,7 +691,6 @@ public class Main {
             return;
         }
 
-        // Já aqui é onde se Verifica se existem itens com esta categoria
         List<ItemCardapio> itens = itemRepo.listarTodos();
         boolean temItens = itens.stream()
                 .anyMatch(i -> i.getCategoria() != null && i.getCategoria().getId() == id);
@@ -690,8 +712,6 @@ public class Main {
             System.out.println("\n Operação cancelada.");
         }
     }
-
-    // ============ MÉTODOS AUXILIARES ============
 
     private static void inicializarDados() {
         if (categoriaRepo.listarTodos().isEmpty()) {
