@@ -1,20 +1,25 @@
 package repository;
 
-import model.ItemCardapio;
+import model.Pedido;
+import util.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.*;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemCardapioRepository implements Repository<ItemCardapio, Integer> {
-    private static final String CAMINHO_ARQUIVO = "src/main/resources/data/cardapio.json";
+public class PedidoRepository implements Repository<Pedido, Integer> {
+    private static final String CAMINHO_ARQUIVO = "src/main/resources/data/pedidos.json";
     private final Gson gson;
 
-    public ItemCardapioRepository() {
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+    public PedidoRepository() {
+        this.gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .create();
         criarArquivoSeNaoExistir();
     }
 
@@ -31,15 +36,15 @@ public class ItemCardapioRepository implements Repository<ItemCardapio, Integer>
         }
     }
 
-    private List<ItemCardapio> carregarLista() {
+    private List<Pedido> carregarLista() {
         File arquivo = new File(CAMINHO_ARQUIVO);
         if (!arquivo.exists() || arquivo.length() == 0) {
             return new ArrayList<>();
         }
 
         try (Reader reader = new FileReader(arquivo)) {
-            Type tipoLista = new TypeToken<List<ItemCardapio>>() {}.getType();
-            List<ItemCardapio> lista = gson.fromJson(reader, tipoLista);
+            Type tipoLista = new TypeToken<List<Pedido>>() {}.getType();
+            List<Pedido> lista = gson.fromJson(reader, tipoLista);
             return lista != null ? lista : new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,7 +52,7 @@ public class ItemCardapioRepository implements Repository<ItemCardapio, Integer>
         }
     }
 
-    private void salvarLista(List<ItemCardapio> lista) {
+    private void salvarLista(List<Pedido> lista) {
         try (Writer writer = new FileWriter(CAMINHO_ARQUIVO)) {
             gson.toJson(lista, writer);
         } catch (IOException e) {
@@ -57,37 +62,45 @@ public class ItemCardapioRepository implements Repository<ItemCardapio, Integer>
 
     public int gerarNovoId() {
         return carregarLista().stream()
-                .mapToInt(ItemCardapio::getId)
+                .mapToInt(Pedido::getId)
                 .max()
                 .orElse(0) + 1;
     }
 
     @Override
-    public void salvar(ItemCardapio item) {
-        List<ItemCardapio> lista = carregarLista();
-        lista.add(item);
+    public void salvar(Pedido pedido) {
+        List<Pedido> lista = carregarLista();
+        lista.add(pedido);
         salvarLista(lista);
     }
 
     @Override
-    public ItemCardapio buscarPorId(Integer id) {
+    public Pedido buscarPorId(Integer id) {
         return carregarLista().stream()
-                .filter(i -> i.getId() == id)
+                .filter(p -> p.getId() == id)
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public List<ItemCardapio> listarTodos() {
+    public List<Pedido> listarTodos() {
         return new ArrayList<>(carregarLista());
     }
 
+    public List<Pedido> listarPorCliente(String cpfCliente) {
+        return carregarLista().stream()
+                .filter(p -> p.getCliente() != null &&
+                        p.getCliente().getCpf() != null &&
+                        p.getCliente().getCpf().equals(cpfCliente))
+                .toList();
+    }
+
     @Override
-    public void atualizar(ItemCardapio item) {
-        List<ItemCardapio> lista = carregarLista();
+    public void atualizar(Pedido pedido) {
+        List<Pedido> lista = carregarLista();
         for (int i = 0; i < lista.size(); i++) {
-            if (lista.get(i).getId() == item.getId()) {
-                lista.set(i, item);
+            if (lista.get(i).getId() == pedido.getId()) {
+                lista.set(i, pedido);
                 break;
             }
         }
@@ -96,8 +109,8 @@ public class ItemCardapioRepository implements Repository<ItemCardapio, Integer>
 
     @Override
     public void excluir(Integer id) {
-        List<ItemCardapio> lista = carregarLista();
-        lista.removeIf(i -> i.getId() == id);
+        List<Pedido> lista = carregarLista();
+        lista.removeIf(p -> p.getId() == id);
         salvarLista(lista);
     }
 }
