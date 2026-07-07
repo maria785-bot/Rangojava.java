@@ -1,116 +1,136 @@
 package repository;
 
+import model.Cliente;
+import model.ItemCardapio;
 import model.Pedido;
-import util.LocalDateTimeAdapter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import java.io.*;
-import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import model.StatusPedido;
+import repository.ItemCardapioRepository;
+import repository.PedidoRepository;
+import exception.CancelamentoNaoPermitidoException;
+import exception.StatusInvalidoException;
+
 import java.util.List;
+import java.util.Scanner;
 
-public class PedidoRepository implements Repository<Pedido, Integer> {
-    private static final String CAMINHO_ARQUIVO = "src/main/resources/data/pedidos.json";
-    private final Gson gson;
+public class PedidoService {
 
-    public PedidoRepository() {
-        this.gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .create();
-        criarArquivoSeNaoExistir();
-    }
+    private final Scanner scanner = new Scanner(System.in);
+    private final ItemCardapioRepository itemRepo = new ItemCardapioRepository();
+    private final PedidoRepository pedidoRepo = new PedidoRepository();
 
-    private void criarArquivoSeNaoExistir() {
-        File arquivo = new File(CAMINHO_ARQUIVO);
-        if (!arquivo.exists()) {
-            try {
-                arquivo.getParentFile().mkdirs();
-                arquivo.createNewFile();
-                salvarLista(new ArrayList<>());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public void fazerPedido(Cliente cliente) {
+        System.out.println("\n🍽️ FAZER PEDIDO");
+        System.out.println("=".repeat(50));
 
-    private List<Pedido> carregarLista() {
-        File arquivo = new File(CAMINHO_ARQUIVO);
-        if (!arquivo.exists() || arquivo.length() == 0) {
-            return new ArrayList<>();
-        }
-
-        try (Reader reader = new FileReader(arquivo)) {
-            Type tipoLista = new TypeToken<List<Pedido>>() {}.getType();
-            List<Pedido> lista = gson.fromJson(reader, tipoLista);
-            return lista != null ? lista : new ArrayList<>();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    private void salvarLista(List<Pedido> lista) {
-        try (Writer writer = new FileWriter(CAMINHO_ARQUIVO)) {
-            gson.toJson(lista, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public int gerarNovoId() {
-        return carregarLista().stream()
-                .mapToInt(Pedido::getId)
-                .max()
-                .orElse(0) + 1;
-    }
-
-    @Override
-    public void salvar(Pedido pedido) {
-        List<Pedido> lista = carregarLista();
-        lista.add(pedido);
-        salvarLista(lista);
-    }
-
-    @Override
-    public Pedido buscarPorId(Integer id) {
-        return carregarLista().stream()
-                .filter(p -> p.getId() == id)
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public List<Pedido> listarTodos() {
-        return new ArrayList<>(carregarLista());
-    }
-
-    public List<Pedido> listarPorCliente(String cpfCliente) {
-        return carregarLista().stream()
-                .filter(p -> p.getCliente() != null &&
-                        p.getCliente().getCpf() != null &&
-                        p.getCliente().getCpf().equals(cpfCliente))
+        List<ItemCardapio> itensDisponiveis = itemRepo.listarTodos().stream()
+                .filter(ItemCardapio::isDisponivel)
                 .toList();
-    }
 
-    @Override
-    public void atualizar(Pedido pedido) {
-        List<Pedido> lista = carregarLista();
-        for (int i = 0; i < lista.size(); i++) {
-            if (lista.get(i).getId() == pedido.getId()) {
-                lista.set(i, pedido);
-                break;
+        if (itensDisponiveis.isEmpty()) {
+            System.out.println("❌ Nenhum item disponível no cardápio no momento.");
+            return;
+        }
+
+        Pedido pedido = new Pedido();
+        pedido.setId(pedidoRepo.gerarNovoId());
+        pedido.setCliente(cliente);
+
+        boolean continuar = true;
+        while (continuar) {
+            exibirCardapio(itensDisponiveis);
+            System.out.println("\n📋 OPÇÕES:");
+            System.out.println("  0 - Finalizar pedido");
+            System.out.println("  " + (itensDisponiveis.size() + 1) + " - Cancelar pedido");
+            System.out.print("\n👉 Digite o número do item desejado: ");
+
+            int opcao;
+            while (!scanner.hasNextInt()) {
+                System.out.print("❌ Digite um número válido: ");
+                scanner.next();
+            }
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            if (opcao == 0) {
+                continuar = false;
+            } else if (opcao == itensDisponiveis.size() + 1) {
+                System.out.println("\n❌ Pedido cancelado.");
+                return;
+            } else if (opcao >= 1 && opcao <= itensDisponiveis.size()) {
+                ItemCardapio itemSelecionado = itensDisponiveis.get(opcao - 1);
+
+                System.out.print("Quantidade: ");
+                int quantidade;
+                while (!scanner.hasNextInt()) {
+                    System.out.print("❌ Digite um número válido: ");
+                    scanner.next();
+                }
+                quantidade = scanner.nextInt();
+                scanner.nextLine();
+
+                if (quantidade <= 0) {
+                    System.out.println("❌ Quantidade inválida!");
+                    continue;
+                }
+
+                for (int i = 0; i < quantidade; i++) {
+                    pedido.adicionarItem(itemSelecionado);
+                }
+
+                System.out.println("✅ " + quantidade + "x " + itemSelecionado.getNome() + " adicionado ao pedido!");
+                System.out.println("💰 Total atual: R$ " + String.format("%.2f", pedido.getValorTotal()));
+            } else {
+                System.out.println("❌ Opção inválida!");
             }
         }
-        salvarLista(lista);
+
+        if (pedido.getItens().isEmpty()) {
+            System.out.println("\n❌ Pedido vazio! Nenhum item selecionado.");
+            return;
+        }
+
+        System.out.print("\n📝 Observações (opcional): ");
+        String observacoes = scanner.nextLine().trim();
+
+        pedidoRepo.salvar(pedido);
+
+        System.out.println("\n" + "=".repeat(50));
+        System.out.println("✅ PEDIDO REALIZADO COM SUCESSO!");
+        System.out.println("=".repeat(50));
+        System.out.println("📌 Número do pedido: #" + pedido.getId());
+        System.out.println("👤 Cliente: " + cliente.getNome());
+        System.out.println("📅 Data: " + pedido.getDataHora());
+        System.out.println("📦 Status: " + pedido.getStatus());
+
+        System.out.println("\n📋 ITENS DO PEDIDO:");
+        System.out.println("-".repeat(40));
+        for (ItemCardapio item : pedido.getItens()) {
+            System.out.println("  • " + item.getNome() + " - R$ " + String.format("%.2f", item.getPreco()));
+        }
+        System.out.println("-".repeat(40));
+        System.out.println("💰 TOTAL: R$ " + String.format("%.2f", pedido.getValorTotal()));
+
+        if (!observacoes.isEmpty()) {
+            System.out.println("📝 Observações: " + observacoes);
+        }
+        System.out.println("=".repeat(50));
     }
 
-    @Override
-    public void excluir(Integer id) {
-        List<Pedido> lista = carregarLista();
-        lista.removeIf(p -> p.getId() == id);
-        salvarLista(lista);
+    private void exibirCardapio(List<ItemCardapio> itens) {
+        System.out.println("\n📋 CARDÁPIO DISPONÍVEL");
+        System.out.println("=".repeat(50));
+        System.out.printf("%-5s %-30s %-15s %s%n", "Nº", "Nome", "Categoria", "Preço");
+        System.out.println("-".repeat(50));
+
+        int numero = 1;
+        for (ItemCardapio item : itens) {
+            System.out.printf("%-5d %-30s %-15s R$ %-8.2f%n",
+                    numero,
+                    item.getNome(),
+                    item.getCategoria() != null ? item.getCategoria().getName() : "Sem categoria",
+                    item.getPreco());
+            numero++;
+        }
+        System.out.println("=".repeat(50));
     }
 }
