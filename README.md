@@ -79,8 +79,11 @@ src/main/java/main/java/
 ---
 
 ## 👨‍💻 Autores
-Nome	         Função
-Maria Eduarda	  Desenvolvedor
+Nome:	         
+Maria Eduarda	  
+
+Matricula:
+202425020029
 
 ---
 ## 📅 Data de Entrega
