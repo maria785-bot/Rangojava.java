@@ -66,4 +66,54 @@ src/main/java/main/java/
 │ └── ValidadorDocumentos.java
 └── view/
 └── Main.java
+---
+
+## 💻 Tecnologias Utilizadas
+
+| Tecnologia | Versão | Finalidade |
+|------------|--------|------------|
+| **Java** | 17 | Linguagem de programação |
+| **Maven** | 3.8.1 | Gerenciador de dependências |
+| **Gson** | 2.10.1 | Serialização JSON |
+
+---
+
+## 👨‍💻 Autores
+Nome	         Função
+Maria Eduarda	  Desenvolvedor
+
+---
+## 📅 Data de Entrega
+05/07/2026
+---
+---
+## 🏆 Dificuldades Enfrentadas e Soluções
+1. Serialização de LocalDateTime com Gson
+   Problema: O Gson não conseguiu serializar LocalDateTime no Java 17.
+   Solução: Criei um TypeAdapter personalizado (LocalDateTimeAdapter.java) que converte LocalDateTime para String ISO
+
+2. Validação de CPF
+   Problema: Validar corretamente os dígitos verificadores do CPF.
+   Solução: Implementamos o algoritmo de validação de CPF com cálculo dos dígitos verificadores.
+
+---
+
+## 📌 Observação sobre execução
+
+Este projeto não utiliza JavaFX, pois a interface é totalmente via terminal.
+
+---
+
+### Pré-requisitos
+- Java 17 ou superior
+- Maven 3.8.1 ou superior
+---
+## 🚀 Como Executar
+
+### Opção 1: Executar pelo Maven
+```bash
+mvn clean package
+java -jar target/rangojava.jar
+
+---
 
