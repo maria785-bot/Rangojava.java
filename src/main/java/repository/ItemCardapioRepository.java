@@ -1,6 +1,6 @@
 package repository;
 
-import main.java.model.ItemCardapio;
+import model.ItemCardapio;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
