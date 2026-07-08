@@ -9,20 +9,20 @@ import java.util.List;
 /**
  * Altera o status do pedido com validações de regra de negócio.
  *
- * Regras aplicadas:
+ * Regras que foram aplicadas:
  * 1. Não permite cancelar um pedido já entregue
  * 2. Não permite alterar um pedido cancelado
  * 3. Não permite voltar para NOVO após PREPARANDO
  * 4. Não permite voltar para PREPARANDO após PRONTO
  *
- * @throws StatusInvalidoException Se a transição não for permitida
- * @throws CancelamentoNaoPermitidoException Se tentar cancelar pedido entregue
+ * @throws StatusInvalidoException Se a transição não for permitida 
+ * @throws CancelamentoNaoPermitidoException vai lançar se tentar cancelar pedido entregue
  */
 
 public class Pedido {
     private int id;
     private Cliente cliente;
-    private final List<ItemCardapio> itens;  // ← CORRIGIDO: ItemCardapio (maiúsculo)
+    private final List<ItemCardapio> itens;  
     private StatusPedido status;
     private final LocalDateTime dataHora;
     private double valorTotal;
@@ -43,7 +43,7 @@ public class Pedido {
     }
 
     // Adiciona um item ao pedido
-    public void adicionarItem(ItemCardapio item) {  // ← CORRIGIDO
+    public void adicionarItem(ItemCardapio item) {  
         if (item != null && item.isDisponivel()) {
             itens.add(item);
             calcularValorTotal();
@@ -51,7 +51,7 @@ public class Pedido {
     }
 
     // Remove um item do pedido
-    public void removerItem(ItemCardapio item) {  // ← CORRIGIDO
+    public void removerItem(ItemCardapio item) {  
         itens.remove(item);
         calcularValorTotal();
     }
@@ -88,7 +88,7 @@ public class Pedido {
     // Calcula valor total do pedido
     private void calcularValorTotal() {
         valorTotal = 0.0;
-        for (ItemCardapio item : itens) {  // ← CORRIGIDO
+        for (ItemCardapio item : itens) {  
             valorTotal += item.getPreco();
         }
     }
@@ -110,7 +110,7 @@ public class Pedido {
         this.cliente = cliente;
     }
 
-    public List<ItemCardapio> getItens() {  // ← CORRIGIDO
+    public List<ItemCardapio> getItens() {  
         return new ArrayList<>(itens);
     }
 
